@@ -2,7 +2,7 @@
 /*
 Plugin Name: grayish MV add Plugin
 Description: grayishのフロントページのメインビジュアルにスライダー又は動画を追加するプラグイン
-Version: 1.0.8
+Version: 2.0.0
 Author: Na2factory
 Author URI: https://na2-factory.com/
 License: GNU General Public License
@@ -26,7 +26,7 @@ add_action('after_setup_theme', function () {
 
 		// プラグイン
 		if (!defined('GRYMV_PLUGIN_VERSION')) {
-			define('GRYMV_PLUGIN_VERSION', '1.0.8');
+			define('GRYMV_PLUGIN_VERSION', '2.0.0');
 		}
 		if (!defined('GRY_PLUGIN_PATH')) {
 			define('GRY_PLUGIN_PATH', plugin_dir_path(__FILE__));
@@ -459,12 +459,23 @@ add_action('after_setup_theme', function () {
 					$output = <<<JS
 							const headerMVContainer = document.querySelector('.grayish-plg-frontpage.front-top-page .container .header-container .header');
 							const swiperMVContainer = document.querySelector('.cstm-mv-swiper');
-							const slideLength = document.querySelectorAll('.cstm-mv-swiper.swiper .swiper-slide').length;
+							const slideElements = document.querySelectorAll('.cstm-mv-swiper.swiper .swiper-slide');
+							const slideLength = slideElements.length;
 
 							const initCstmMVSwiper = () => {
 								if(!swiperMVContainer)return;
 								// スライド数が1以下の場合はswiper動作しない
 								if(slideLength <= 1) return;
+
+								// スライド複製
+								const swiperWrapper = swiperMVContainer.querySelector('.swiper-wrapper');
+								if (swiperWrapper) {
+									slideElements.forEach(slide => {
+										const clone = slide.cloneNode(true);
+										swiperWrapper.appendChild(clone);
+									});
+								}
+
 								const myEffect = '$effect';
 								const myDelay = $delay;
 								const myParallax = $parallax;
@@ -472,7 +483,7 @@ add_action('after_setup_theme', function () {
 								const CstmMVSwiper = new Swiper('.cstm-mv-swiper.swiper', {
 								effect: myEffect,
 								fadeEffect: {
-								crossFade: true,
+									crossFade: true,
 								},
 								loop: true,
 								loopAdditionalSlides: 1,
@@ -482,9 +493,10 @@ add_action('after_setup_theme', function () {
 								spaceBetween: 0,
 								speed: 2000,
 								autoplay: {
-								delay: myDelay,
-								disableOnInteraction: false,
-								waitForTransition: false,
+									enabled: true,
+									delay: myDelay,
+									disableOnInteraction: false,
+									waitForTransition: false
 								},
 								followFinger: false,
 								watchSlidesProgress:true,
